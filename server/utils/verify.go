@@ -16,4 +16,5 @@ var (
 	OldAuthorityVerify     = Rules{"OldAuthorityId": {NotEmpty()}}
 	ChangePasswordVerify   = Rules{"Password": {NotEmpty()}, "NewPassword": {NotEmpty()}}
 	SetUserAuthorityVerify = Rules{"AuthorityId": {NotEmpty()}}
+	LisConfigVerify        = Rules{"SpotNum": {Ge("0")}, "SwapNum": {Ge("0")}, "PlanOrderRate": {Ge("0")}, "TopRate": {Ge("0")}, "TopCallRate": {Ge("0")}}
 )

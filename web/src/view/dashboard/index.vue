@@ -43,7 +43,7 @@
               </div>
             </el-col>
           </el-row>
-          <div>
+          <!-- <div>
             <div class="gva-top-card-left-item">
               使用教学：
               <a
@@ -60,7 +60,7 @@
                 href="https://plugin.gin-vue-admin.com/#/layout/home"
               >https://plugin.gin-vue-admin.com</a>
             </div>
-          </div>
+          </div> -->
         </div>
         <img
           src="@/assets/dashboard.png"
