@@ -44,7 +44,7 @@ func Routers() *gin.Engine {
 	PrivateGroup := Router.Group(global.GVA_CONFIG.System.RouterPrefix)
 	PrivateGroup.Use(middleware.JWTAuth()).Use(middleware.CasbinHandler())
 	{
-
+		systemRouter.InitApiRouter(PrivateGroup, PublicGroup)
 		systemRouter.InitJwtRouter(PrivateGroup)
 		systemRouter.InitUserRouter(PrivateGroup)
 		systemRouter.InitMenuRouter(PrivateGroup)
@@ -64,10 +64,10 @@ func Routers() *gin.Engine {
 
 		listenRouter.InitConfigRouter(PrivateGroup)
 		listenRouter.InitApisRouter(PrivateGroup)
+		listenRouter.InitCoinsRouter(PrivateGroup)
 	}
 
 	global.GVA_LOG.Info("router register success")
 	return Router
-	listenRouter.InitCoinsRouter(PrivateGroup)
 
 }

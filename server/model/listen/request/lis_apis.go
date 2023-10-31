@@ -12,3 +12,8 @@ type ApisSearch struct {
 	EndCreatedAt   *time.Time `json:"endCreatedAt" form:"endCreatedAt"`
 	request.PageInfo
 }
+
+type ApisSymbol struct {
+	listen.Apis
+	Symbol []string `json:"symbol"`
+}
