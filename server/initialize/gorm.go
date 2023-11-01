@@ -51,7 +51,7 @@ func RegisterTables() {
 		example.ExaFile{},
 		example.ExaCustomer{},
 		example.ExaFileChunk{},
-		example.ExaFileUploadAndDownload{}, listen.Apis{}, listen.Coins{},
+		example.ExaFileUploadAndDownload{}, listen.Apis{}, listen.Coins{}, listen.Order{},
 	)
 	if err != nil {
 		global.GVA_LOG.Error("register table failed", zap.Error(err))

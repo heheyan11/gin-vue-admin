@@ -65,6 +65,7 @@ func Routers() *gin.Engine {
 		listenRouter.InitConfigRouter(PrivateGroup)
 		listenRouter.InitApisRouter(PrivateGroup)
 		listenRouter.InitCoinsRouter(PrivateGroup)
+		listenRouter.InitOrderRouter(PrivateGroup)
 	}
 
 	global.GVA_LOG.Info("router register success")

@@ -165,15 +165,14 @@ func (lisApisApi *ApisApi) UpdateApis(c *gin.Context) {
 		return
 	}
 
+	//启动停止
 	if apis.Status != lisApis.Status {
-		tx := global.GVA_DB.Begin()
-		err = tx.Save(&lisApis).Error
+
 		switch lisApis.Status {
 		case "启动":
 			marshal, _ := json.Marshal(lisApis)
 			post, err := global.HttpPost(global.GVA_CONFIG.Vars.LisUrl+"/user/start", marshal)
 			if err != nil {
-				tx.Rollback()
 				global.GVA_LOG.Error("请求失败!", zap.Error(err))
 				response.FailWithMessage(err.Error(), c)
 				return
@@ -187,19 +186,19 @@ func (lisApisApi *ApisApi) UpdateApis(c *gin.Context) {
 		case "停止":
 			_, err = global.HttpGet(global.GVA_CONFIG.Vars.LisUrl + "/user/stop?apikey=" + lisApis.ApiKey)
 			if err != nil {
-				tx.Rollback()
 				global.GVA_LOG.Error("请求失败!", zap.Error(err))
 				response.FailWithMessage(err.Error(), c)
 				return
 			}
 		}
-
-		if err != nil {
-			tx.Rollback()
-			global.GVA_LOG.Error("更新失败!", zap.Error(err))
-			response.FailWithMessage("更新失败", c)
-		} else {
-			tx.Commit()
+	} else {
+		if apis.Status == "启动" && lisApis.Symbol != apis.Symbol {
+			_, err := global.HttpPost(global.GVA_CONFIG.Vars.LisUrl+"/user/setSymbol?apikey="+lisApis.ApiKey, []byte(lisApis.Symbol))
+			if err != nil {
+				global.GVA_LOG.Error("请求失败!", zap.Error(err))
+				response.FailWithMessage(err.Error(), c)
+				return
+			}
 		}
 	}
 
