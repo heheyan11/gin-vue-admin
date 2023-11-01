@@ -1,0 +1,654 @@
+<template>
+  <div>
+    <div class="gva-search-box">
+      <el-form ref="elSearchFormRef" :inline="true" :model="searchInfo" class="demo-form-inline" :rules="searchRule" @keyup.enter="onSubmit">
+      <el-form-item label="订单创建日期" prop="createdAt">
+      <template #label>
+        <span>
+          订单创建日期
+          <el-tooltip content="搜索范围是开始日期（包含）至结束日期（不包含）">
+            <el-icon><QuestionFilled /></el-icon>
+          </el-tooltip>
+        </span>
+      </template>
+      <el-date-picker v-model="searchInfo.startCreatedAt" type="datetime" placeholder="开始日期" :disabled-date="time=> searchInfo.endCreatedAt ? time.getTime() > searchInfo.endCreatedAt.getTime() : false"></el-date-picker>
+       —
+      <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
+      </el-form-item>
+        <el-form-item label="买单id" prop="buyId">
+         <el-input v-model="searchInfo.buyId" placeholder="搜索条件" />
+        </el-form-item>
+
+        <el-form-item label="产品id" prop="ordId">
+         <el-input v-model="searchInfo.ordId" placeholder="搜索条件" />
+        </el-form-item>
+
+         
+
+         <el-form-item label="产品类型">
+          <el-select
+            v-model="searchInfo.instType"
+            clearable
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in [{'label':'币币','value':'spot'},{'label':'永续','value':'swap'}]"
+              :key="item.value"
+              :label="`${item.label}(${item.value})`"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        
+        <el-form-item label="订单方向">
+          <el-select
+            v-model="searchInfo.side"
+            clearable
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in [{'label':'买入','value':'buy'},{'label':'卖出','value':'sell'}]"
+              :key="item.value"
+              :label="`${item.label}(${item.value})`"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="交易模式">
+          <el-select
+            v-model="searchInfo.tdMode"
+            clearable
+            placeholder="请选择"
+          >
+            <el-option
+              v-for="item in [{'label':'现金','value':'cash'},{'label':'全仓','value':'cross'}]"
+              :key="item.value"
+              :label="`${item.label}(${item.value})`"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+      
+    
+        
+        <el-form-item>
+          <el-button type="primary" icon="search" @click="onSubmit">查询</el-button>
+          <el-button icon="refresh" @click="onReset">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </div>
+    <div class="gva-table-box">
+        <div class="gva-btn-list">
+            <!-- <el-button type="primary" icon="plus" @click="openDialog">新增</el-button> -->
+            <el-popover v-model:visible="deleteVisible" :disabled="!multipleSelection.length" placement="top" width="160">
+            <p>确定要删除吗？</p>
+            <div style="text-align: right; margin-top: 8px;">
+                <el-button type="primary" link @click="deleteVisible = false">取消</el-button>
+                <el-button type="primary" @click="onDelete">确定</el-button>
+            </div>
+            <template #reference>
+                <el-button icon="delete" style="margin-left: 10px;" :disabled="!multipleSelection.length" @click="deleteVisible = true">删除</el-button>
+            </template>
+            </el-popover>
+        </div>
+        <el-table
+        ref="multipleTable"
+        style="width: 100%"
+        tooltip-effect="dark"
+        :data="tableData"
+        row-key="ID"
+        @selection-change="handleSelectionChange"
+        >
+        <el-table-column type="selection" width="55" />
+        
+        <el-table-column align="left" label="用户apikey" prop="apikey" width="120" />
+        <el-table-column align="left" label="买单id" prop="buyId" width="120" />
+        <el-table-column align="left" label="产品Id" prop="ordId" width="120" />
+        <el-table-column align="left" label="委托数量,(SWAP为张)" prop="sz" width="120" />
+        <el-table-column align="left" label="累计成交量" prop="accFillSz" width="120" />
+        <el-table-column align="left" label="收益" prop="pnl" width="120" />
+        <el-table-column align="left" label="成交均价" prop="avgPx" width="120" />
+        <!-- <el-table-column align="left" label="创建订单的时间" prop="ctime" width="120" >
+          <template #default="scope">{{ formatDate(scope.row.ctime) }}</template>
+        </el-table-column> -->
+        <!-- <el-table-column align="left" label="累计手续费" prop="fee" width="120" /> -->
+        <!-- <el-table-column align="left" label="手续费币种" prop="feeCcy" width="120" /> -->
+        <!-- <el-table-column align="left" label="委托单已成交美元价值" prop="fillNotionalUsd" width="120" /> -->
+        <el-table-column align="left" label="创建订单的时间" prop="fillTime" width="120" > <template #default="scope">{{ formatDate(scope.row.ctime) }}</template></el-table-column>
+        <el-table-column align="left" label="产品类型" prop="instId" width="120" /> 
+   
+        <!-- <el-table-column align="left" label="订单类型" prop="ordType" width="120" /> -->
+       
+        <!-- <el-table-column align="left" label="委托价格" prop="px" width="120" />   -->
+      
+        <!-- <el-table-column align="left" label="交易模式" prop="tdMode" width="120" /> -->
+        <el-table-column align="left" label="操作">
+            <template #default="scope">
+            <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
+                <el-icon style="margin-right: 5px"><InfoFilled /></el-icon>
+                查看详情
+            </el-button>
+            <!-- <el-button type="primary" link icon="edit" class="table-button" @click="updateOrderFunc(scope.row)">变更</el-button> -->
+            <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
+            </template>
+        </el-table-column>
+        </el-table>
+        <div class="gva-pagination">
+            <el-pagination
+            layout="total, sizes, prev, pager, next, jumper"
+            :current-page="page"
+            :page-size="pageSize"
+            :page-sizes="[10, 30, 50, 100]"
+            :total="total"
+            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
+            />
+        </div>
+    </div>
+    <el-dialog v-model="dialogFormVisible" :before-close="closeDialog" :title="type==='create'?'添加':'修改'" destroy-on-close>
+      <el-scrollbar height="500px">
+          <el-form :model="formData" label-position="right" ref="elFormRef" :rules="rule" label-width="80px">
+            <el-form-item label="用户apikey:"  prop="apikey" >
+              <el-input v-model="formData.apikey" :clearable="true"  placeholder="请输入用户apikey" />
+            </el-form-item>
+            <el-form-item label="买单id:"  prop="buyId" >
+              <el-input v-model="formData.buyId" :clearable="true"  placeholder="请输入买单id" />
+            </el-form-item>
+
+            <el-form-item label="委托数量:"  prop="sz" >
+              <el-input v-model="formData.sz" :clearable="true"  placeholder="请输入委托数量" />
+            </el-form-item>
+            <el-form-item label="累计成交量:"  prop="accFillSz" >
+              <el-input v-model="formData.accFillSz" :clearable="true"  placeholder="请输入累计成交量" />
+            </el-form-item>
+            <el-form-item label="成交均价:"  prop="avgPx" >
+              <el-input v-model="formData.avgPx" :clearable="true"  placeholder="请输入成交均价" />
+            </el-form-item>
+            <el-form-item label="创建订单的时间:"  prop="ctime" >
+              <el-input v-model="formData.ctime" :clearable="true"  placeholder="请输入创建订单的时间" />
+            </el-form-item>
+            <!-- <el-form-item label="错误码:"  prop="code" >
+              <el-input v-model="formData.code" :clearable="true"  placeholder="请输入错误码" />
+            </el-form-item>
+            <el-form-item label="错误信息:"  prop="msg" >
+              <el-input v-model="formData.msg" :clearable="true"  placeholder="请输入错误信息" />
+            </el-form-item> -->
+            <el-form-item label="累计手续费:"  prop="fee" >
+              <el-input v-model="formData.fee" :clearable="true"  placeholder="请输入累计手续费" />
+            </el-form-item>
+            <el-form-item label="手续费币种:"  prop="feeCcy" >
+              <el-input v-model="formData.feeCcy" :clearable="true"  placeholder="请输入手续费币种" />
+            </el-form-item>
+            <el-form-item label="委托单美元价值:"  prop="notionalUsd" >
+              <el-input v-model="formData.notionalUsd" :clearable="true"  placeholder="请输入委托单美元价值" />
+            </el-form-item>
+            <el-form-item label="委托单已成交美元价值:"  prop="fillNotionalUsd" >
+              <el-input v-model="formData.fillNotionalUsd" :clearable="true"  placeholder="请输入委托单已成交美元价值" />
+            </el-form-item>
+            <el-form-item label="最新成交时间:"  prop="fillTime" >
+              <el-input v-model="formData.fillTime" :clearable="true"  placeholder="请输入最新成交时间" />
+            </el-form-item>
+            <el-form-item label="产品id:"  prop="instId" >
+              <el-input v-model="formData.instId" :clearable="true"  placeholder="请输入产品id" />
+            </el-form-item>
+            <el-form-item label="产品类型:"  prop="instType" >
+              <el-input v-model="formData.instType" :clearable="true"  placeholder="请输入产品类型" />
+            </el-form-item>
+            <el-form-item label="杠杆倍数:"  prop="lever" >
+              <el-input v-model="formData.lever" :clearable="true"  placeholder="请输入杠杆倍数" />
+            </el-form-item>
+         
+            <el-form-item label="产品Id:"  prop="ordId" >
+              <el-input v-model="formData.ordId" :clearable="true"  placeholder="请输入产品Id" />
+            </el-form-item>
+            <el-form-item label="订单类型:"  prop="ordType" >
+              <el-input v-model="formData.ordType" :clearable="true"  placeholder="请输入订单类型" />
+            </el-form-item>
+            <el-form-item label="收益:"  prop="pnl" >
+              <el-input v-model="formData.pnl" :clearable="true"  placeholder="请输入收益" />
+            </el-form-item>
+            <!-- <el-form-item label="委托价格:"  prop="px" >
+              <el-input v-model="formData.px" :clearable="true"  placeholder="请输入委托价格" />
+            </el-form-item> -->
+            <el-form-item label="订单方向:"  prop="side" >
+              <el-input v-model="formData.side" :clearable="true"  placeholder="请输入订单方向" />
+            </el-form-item>
+           
+          
+            <el-form-item label="交易模式:"  prop="tdMode" >
+              <el-input v-model="formData.tdMode" :clearable="true"  placeholder="请输入交易模式" />
+            </el-form-item>
+          </el-form>
+      </el-scrollbar>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="closeDialog">取 消</el-button>
+          <el-button type="primary" @click="enterDialog">确 定</el-button>
+        </div>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-model="detailShow" style="width: 800px" lock-scroll :before-close="closeDetailShow" title="查看详情" destroy-on-close>
+      <el-scrollbar height="550px">
+        <el-descriptions column="1" border>
+                <el-descriptions-item label="用户apikey">
+                        {{ formData.apikey }}
+                </el-descriptions-item>
+                <el-descriptions-item label="产品类型">
+                        {{ formData.instId }}
+                </el-descriptions-item>
+                <el-descriptions-item label="产品Id">
+                        {{ formData.ordId }}
+                </el-descriptions-item>
+                <el-descriptions-item label="买单id">
+                        {{ formData.buyId }}
+                </el-descriptions-item>
+                <el-descriptions-item label="委托数量">
+                        {{ formData.sz }}
+                </el-descriptions-item>
+                <el-descriptions-item label="累计成交量">
+                        {{ formData.accFillSz }}
+                </el-descriptions-item>
+
+                <el-descriptions-item label="收益">
+                        {{ formData.pnl }}
+                </el-descriptions-item>
+                <el-descriptions-item label="成交均价">
+                        {{ formData.avgPx }}
+                </el-descriptions-item>
+                <el-descriptions-item label="创建订单的时间">
+                        {{ formData.ctime!=""?formatDate(formData.ctime):"" }}
+                </el-descriptions-item>
+                <!-- <el-descriptions-item label="错误码">
+                        {{ formData.code }}
+                </el-descriptions-item>
+                <el-descriptions-item label="错误信息">
+                        {{ formData.msg }}
+                </el-descriptions-item> -->
+                <el-descriptions-item label="累计手续费">
+                        {{ formData.fee }}
+                </el-descriptions-item>
+                <el-descriptions-item label="手续费币种">
+                        {{ formData.feeCcy }}
+                </el-descriptions-item>
+                <el-descriptions-item label="委托单美元价值">
+                        {{ formData.notionalUsd }}
+                </el-descriptions-item>
+                <el-descriptions-item label="委托单已成交美元价值">
+                        {{ formData.fillNotionalUsd }}
+                </el-descriptions-item>
+                <el-descriptions-item label="最新成交时间">
+                        {{ formData.fillTime!=""?formatDate(Number(formData.fillTime)):"" }}
+                </el-descriptions-item> 
+                <el-descriptions-item label="产品类型">
+                        {{ formData.instType }}
+                </el-descriptions-item>
+                <el-descriptions-item label="杠杆倍数">
+                        {{ formData.lever }}
+                </el-descriptions-item>
+              
+             
+                <el-descriptions-item label="订单类型">
+                        {{ formData.ordType }}
+                </el-descriptions-item>
+                
+                <!-- <el-descriptions-item label="委托价格">
+                        {{ formData.px }}
+                </el-descriptions-item> -->
+                <el-descriptions-item label="订单方向">
+                        {{ formData.side }}
+                </el-descriptions-item>
+               
+               
+                <el-descriptions-item label="交易模式">
+                        {{ formData.tdMode }}
+                </el-descriptions-item>
+        </el-descriptions>
+      </el-scrollbar>
+    </el-dialog>
+  </div>
+</template>
+
+<script setup>
+
+import {
+  createOrder,
+  deleteOrder,
+  deleteOrderByIds,
+  updateOrder,
+  findOrder,
+  getOrderList
+} from '@/api/lis_orders'
+
+// 全量引入格式化工具 请按需保留
+import { getDictFunc, formatDate, formatBoolean, filterDict, ReturnArrImg, onDownloadFile } from '@/utils/format'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { ref, reactive } from 'vue'
+
+defineOptions({
+    name: 'Order'
+})
+
+// 自动化生成的字典（可能为空）以及字段
+const formData = ref({
+        apikey: '',
+        buyId: '',
+        accFillSz: '',
+        avgPx: '',
+        ctime: '',
+        code: '',
+        msg: '',
+        fee: '',
+        feeCcy: '',
+        fillNotionalUsd: '',
+        fillTime: '',
+        instId: '',
+        instType: '',
+        lever: '',
+        notionalUsd: '',
+        ordId: '',
+        ordType: '',
+        pnl: '',
+        px: '',
+        side: '',
+        state: '',
+        sz: '',
+        tdMode: '',
+        })
+
+
+// 验证规则
+const rule = reactive({
+               apikey : [{
+                   required: true,
+                   message: '',
+                   trigger: ['input','blur'],
+               },
+               {
+                   whitespace: true,
+                   message: '不能只输入空格',
+                   trigger: ['input', 'blur'],
+              }
+              ],
+})
+
+const searchRule = reactive({
+  createdAt: [
+    { validator: (rule, value, callback) => {
+      if (searchInfo.value.startCreatedAt && !searchInfo.value.endCreatedAt) {
+        callback(new Error('请填写结束日期'))
+      } else if (!searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt) {
+        callback(new Error('请填写开始日期'))
+      } else if (searchInfo.value.startCreatedAt && searchInfo.value.endCreatedAt && (searchInfo.value.startCreatedAt.getTime() === searchInfo.value.endCreatedAt.getTime() || searchInfo.value.startCreatedAt.getTime() > searchInfo.value.endCreatedAt.getTime())) {
+        callback(new Error('开始日期应当早于结束日期'))
+      } else {
+        callback()
+      }
+    }, trigger: 'change' }
+  ],
+})
+
+const elFormRef = ref()
+const elSearchFormRef = ref()
+
+// =========== 表格控制部分 ===========
+const page = ref(1)
+const total = ref(0)
+const pageSize = ref(10)
+const tableData = ref([])
+const searchInfo = ref({})
+
+// 重置
+const onReset = () => {
+  searchInfo.value = {}
+  getTableData()
+}
+
+// 搜索
+const onSubmit = () => {
+  elSearchFormRef.value?.validate(async(valid) => {
+    if (!valid) return
+    page.value = 1
+    pageSize.value = 10
+    getTableData()
+  })
+}
+
+// 分页
+const handleSizeChange = (val) => {
+  pageSize.value = val
+  getTableData()
+}
+
+// 修改页面容量
+const handleCurrentChange = (val) => {
+  page.value = val
+  getTableData()
+}
+
+// 查询
+const getTableData = async() => {
+  const table = await getOrderList({ page: page.value, pageSize: pageSize.value, ...searchInfo.value })
+  if (table.code === 0) {
+    tableData.value = table.data.list
+    total.value = table.data.total
+    page.value = table.data.page
+    pageSize.value = table.data.pageSize
+  }
+}
+
+getTableData()
+
+// ============== 表格控制部分结束 ===============
+
+// 获取需要的字典 可能为空 按需保留
+const setOptions = async () =>{
+}
+
+// 获取需要的字典 可能为空 按需保留
+setOptions()
+
+
+// 多选数据
+const multipleSelection = ref([])
+// 多选
+const handleSelectionChange = (val) => {
+    multipleSelection.value = val
+}
+
+// 删除行
+const deleteRow = (row) => {
+    ElMessageBox.confirm('确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+    }).then(() => {
+            deleteOrderFunc(row)
+        })
+    }
+
+
+// 批量删除控制标记
+const deleteVisible = ref(false)
+
+// 多选删除
+const onDelete = async() => {
+      const ids = []
+      if (multipleSelection.value.length === 0) {
+        ElMessage({
+          type: 'warning',
+          message: '请选择要删除的数据'
+        })
+        return
+      }
+      multipleSelection.value &&
+        multipleSelection.value.map(item => {
+          ids.push(item.ID)
+        })
+      const res = await deleteOrderByIds({ ids })
+      if (res.code === 0) {
+        ElMessage({
+          type: 'success',
+          message: '删除成功'
+        })
+        if (tableData.value.length === ids.length && page.value > 1) {
+          page.value--
+        }
+        deleteVisible.value = false
+        getTableData()
+      }
+    }
+
+// 行为控制标记（弹窗内部需要增还是改）
+const type = ref('')
+
+// 更新行
+const updateOrderFunc = async(row) => {
+    const res = await findOrder({ ID: row.ID })
+    type.value = 'update'
+    if (res.code === 0) {
+        formData.value = res.data.relisOrders
+        dialogFormVisible.value = true
+    }
+}
+
+
+// 删除行
+const deleteOrderFunc = async (row) => {
+    const res = await deleteOrder({ ID: row.ID })
+    if (res.code === 0) {
+        ElMessage({
+                type: 'success',
+                message: '删除成功'
+            })
+            if (tableData.value.length === 1 && page.value > 1) {
+            page.value--
+        }
+        getTableData()
+    }
+}
+
+// 弹窗控制标记
+const dialogFormVisible = ref(false)
+
+
+// 查看详情控制标记
+const detailShow = ref(false)
+
+
+// 打开详情弹窗
+const openDetailShow = () => {
+  detailShow.value = true
+}
+
+
+// 打开详情
+const getDetails = async (row) => {
+  // 打开弹窗
+  const res = await findOrder({ ID: row.ID })
+  if (res.code === 0) {
+    formData.value = res.data.relisOrders
+    openDetailShow()
+  }
+}
+
+
+// 关闭详情弹窗
+const closeDetailShow = () => {
+  detailShow.value = false
+  formData.value = {
+          apikey: '',
+          buyId: '',
+          accFillSz: '',
+          avgPx: '',
+          ctime: '',
+          code: '',
+          msg: '',
+          fee: '',
+          feeCcy: '',
+          fillNotionalUsd: '',
+          fillTime: '',
+          instId: '',
+          instType: '',
+          lever: '',
+          notionalUsd: '',
+          ordId: '',
+          ordType: '',
+          pnl: '',
+          px: '',
+          side: '',
+          state: '',
+          sz: '',
+          tdMode: '',
+          }
+}
+
+
+// 打开弹窗
+const openDialog = () => {
+    type.value = 'create'
+    dialogFormVisible.value = true
+}
+
+// 关闭弹窗
+const closeDialog = () => {
+    dialogFormVisible.value = false
+    formData.value = {
+        apikey: '',
+        buyId: '',
+        accFillSz: '',
+        avgPx: '',
+        ctime: '',
+        code: '',
+        msg: '',
+        fee: '',
+        feeCcy: '',
+        fillNotionalUsd: '',
+        fillTime: '',
+        instId: '',
+        instType: '',
+        lever: '',
+        notionalUsd: '',
+        ordId: '',
+        ordType: '',
+        pnl: '',
+        px: '',
+        side: '',
+        state: '',
+        sz: '',
+        tdMode: '',
+        }
+}
+// 弹窗确定
+const enterDialog = async () => {
+     elFormRef.value?.validate( async (valid) => {
+             if (!valid) return
+              let res
+              switch (type.value) {
+                case 'create':
+                  res = await createOrder(formData.value)
+                  break
+                case 'update':
+                  res = await updateOrder(formData.value)
+                  break
+                default:
+                  res = await createOrder(formData.value)
+                  break
+              }
+              if (res.code === 0) {
+                ElMessage({
+                  type: 'success',
+                  message: '创建/更改成功'
+                })
+                closeDialog()
+                getTableData()
+              }
+      })
+}
+
+</script>
+
+<style>
+
+</style>
