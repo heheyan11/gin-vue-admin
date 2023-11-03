@@ -6,13 +6,14 @@ COPY . .
 RUN go env -w GO111MODULE=on \
     && go env -w GOPROXY=https://goproxy.cn,direct \
     && go env -w CGO_ENABLED=0 \
+    && go env -w GOOS=linux \
     && go env \
     && go mod tidy \
     && go build -o server .
 
 FROM alpine:latest
 
-LABEL MAINTAINER="SliverHorn@sliver_horn@qq.com"
+LABEL MAINTAINER="270101667@qq.com"
 
 WORKDIR /go/src/github.com/flipped-aurora/gin-vue-admin/server
 

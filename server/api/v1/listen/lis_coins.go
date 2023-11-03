@@ -2,21 +2,20 @@ package listen
 
 import (
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/listen"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
-    listenReq "github.com/flipped-aurora/gin-vue-admin/server/model/listen/request"
-    "github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
-    "github.com/flipped-aurora/gin-vue-admin/server/service"
-    "github.com/gin-gonic/gin"
-    "go.uber.org/zap"
-    "github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
+	"github.com/flipped-aurora/gin-vue-admin/server/model/listen"
+	listenReq "github.com/flipped-aurora/gin-vue-admin/server/model/listen/request"
+	"github.com/flipped-aurora/gin-vue-admin/server/service"
+	"github.com/flipped-aurora/gin-vue-admin/server/utils"
+	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 )
 
 type CoinsApi struct {
 }
 
 var lisCoinsService = service.ServiceGroupApp.ListenServiceGroup.CoinsService
-
 
 // CreateCoins 创建coin
 // @Tags Coins
@@ -34,17 +33,17 @@ func (lisCoinsApi *CoinsApi) CreateCoins(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-    verify := utils.Rules{
-        "Name":{utils.NotEmpty()},
-        "Zhang":{utils.NotEmpty()},
-        "Decimal":{utils.NotEmpty()},
-    }
+	verify := utils.Rules{
+		"Name":    {utils.NotEmpty()},
+		"Zhang":   {utils.NotEmpty()},
+		"Decimal": {utils.NotEmpty()},
+	}
 	if err := utils.Verify(lisCoins, verify); err != nil {
-    		response.FailWithMessage(err.Error(), c)
-    		return
-    	}
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
 	if err := lisCoinsService.CreateCoins(&lisCoins); err != nil {
-        global.GVA_LOG.Error("创建失败!", zap.Error(err))
+		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
 		response.OkWithMessage("创建成功", c)
@@ -68,7 +67,7 @@ func (lisCoinsApi *CoinsApi) DeleteCoins(c *gin.Context) {
 		return
 	}
 	if err := lisCoinsService.DeleteCoins(lisCoins); err != nil {
-        global.GVA_LOG.Error("删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
 		response.OkWithMessage("删除成功", c)
@@ -86,13 +85,13 @@ func (lisCoinsApi *CoinsApi) DeleteCoins(c *gin.Context) {
 // @Router /lisCoins/deleteCoinsByIds [delete]
 func (lisCoinsApi *CoinsApi) DeleteCoinsByIds(c *gin.Context) {
 	var IDS request.IdsReq
-    err := c.ShouldBindJSON(&IDS)
+	err := c.ShouldBindJSON(&IDS)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 	if err := lisCoinsService.DeleteCoinsByIds(IDS); err != nil {
-        global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
+		global.GVA_LOG.Error("批量删除失败!", zap.Error(err))
 		response.FailWithMessage("批量删除失败", c)
 	} else {
 		response.OkWithMessage("批量删除成功", c)
@@ -115,19 +114,20 @@ func (lisCoinsApi *CoinsApi) UpdateCoins(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-      verify := utils.Rules{
-          "Name":{utils.NotEmpty()},
-          "Zhang":{utils.NotEmpty()},
-          "Decimal":{utils.NotEmpty()},
-      }
-    if err := utils.Verify(lisCoins, verify); err != nil {
-      	response.FailWithMessage(err.Error(), c)
-      	return
-     }
+	verify := utils.Rules{
+		"Name":    {utils.NotEmpty()},
+		"Zhang":   {utils.NotEmpty()},
+		"Decimal": {utils.NotEmpty()},
+	}
+	if err := utils.Verify(lisCoins, verify); err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
 	if err := lisCoinsService.UpdateCoins(lisCoins); err != nil {
-        global.GVA_LOG.Error("更新失败!", zap.Error(err))
+		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	} else {
+		//global.HttpGet(global.GVA_CONFIG.Vars.LisUrl + "/system/setSymbols")
 		response.OkWithMessage("更新成功", c)
 	}
 }
@@ -149,7 +149,7 @@ func (lisCoinsApi *CoinsApi) FindCoins(c *gin.Context) {
 		return
 	}
 	if relisCoins, err := lisCoinsService.GetCoins(lisCoins.ID); err != nil {
-        global.GVA_LOG.Error("查询失败!", zap.Error(err))
+		global.GVA_LOG.Error("查询失败!", zap.Error(err))
 		response.FailWithMessage("查询失败", c)
 	} else {
 		response.OkWithData(gin.H{"relisCoins": relisCoins}, c)
@@ -173,14 +173,14 @@ func (lisCoinsApi *CoinsApi) GetCoinsList(c *gin.Context) {
 		return
 	}
 	if list, total, err := lisCoinsService.GetCoinsInfoList(pageInfo); err != nil {
-	    global.GVA_LOG.Error("获取失败!", zap.Error(err))
-        response.FailWithMessage("获取失败", c)
-    } else {
-        response.OkWithDetailed(response.PageResult{
-            List:     list,
-            Total:    total,
-            Page:     pageInfo.Page,
-            PageSize: pageInfo.PageSize,
-        }, "获取成功", c)
-    }
+		global.GVA_LOG.Error("获取失败!", zap.Error(err))
+		response.FailWithMessage("获取失败", c)
+	} else {
+		response.OkWithDetailed(response.PageResult{
+			List:     list,
+			Total:    total,
+			Page:     pageInfo.Page,
+			PageSize: pageInfo.PageSize,
+		}, "获取成功", c)
+	}
 }

@@ -216,7 +216,7 @@ timer:
     start: true
     with_seconds: false
 vars:
-    lis-url: http://127.0.0.1:8080
+    lis-url: http://127.0.0.1:8008
 zap:
     level: info
     prefix: '[github.com/flipped-aurora/gin-vue-admin/server]'

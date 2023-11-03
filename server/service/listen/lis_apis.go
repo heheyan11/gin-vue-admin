@@ -34,7 +34,7 @@ func (lisApisService *ApisService) DeleteApisByIds(ids request.IdsReq) (err erro
 // UpdateApis 更新用户Api记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (lisApisService *ApisService) UpdateApis(lisApis listen.Apis) (err error) {
-	err = global.GVA_DB.Save(&lisApis).Error
+	err = global.GVA_DB.Omit("created_at", "deleted_at", "secret_key", "pass_phrase").Save(&lisApis).Error
 	return err
 }
 

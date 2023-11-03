@@ -152,30 +152,30 @@ const toolCards = ref([
     bg: 'rgba(105, 192, 255,.3)'
   },
   {
-    label: '菜单管理',
+    label: '订单管理',
     icon: 'menu',
-    name: 'menu',
+    name: 'orders',
     color: '#b37feb',
     bg: 'rgba(179, 127, 235,.3)'
   },
   {
-    label: '代码生成器',
+    label: 'api管理',
     icon: 'cpu',
-    name: 'autoCode',
+    name: 'apis',
     color: '#ffd666',
     bg: 'rgba(255, 214, 102,.3)'
   },
   {
-    label: '表单生成器',
+    label: '做单配置',
     icon: 'document-checked',
-    name: 'formCreate',
+    name: 'config',
     color: '#ff85c0',
     bg: 'rgba(255, 133, 192,.3)'
   },
   {
-    label: '关于我们',
+    label: 'symbol配置',
     icon: 'user',
-    name: 'about',
+    name: 'coins',
     color: '#5cdbd3',
     bg: 'rgba(92, 219, 211,.3)'
   }

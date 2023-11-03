@@ -32,6 +32,7 @@ func (lisApisApi *ApisApi) CreateApis(c *gin.Context) {
 	var lisApis listenReq.ApisSymbol
 	err := c.ShouldBindJSON(&lisApis)
 	if err != nil {
+		global.GVA_LOG.Error(err.Error())
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -42,6 +43,7 @@ func (lisApisApi *ApisApi) CreateApis(c *gin.Context) {
 	}
 
 	if err := utils.Verify(lisApis, verify); err != nil {
+		global.GVA_LOG.Error(err.Error())
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -57,11 +59,12 @@ func (lisApisApi *ApisApi) CreateApis(c *gin.Context) {
 		resp := response.Response{}
 		json.Unmarshal(post, &resp)
 		if resp.Code != 0 {
+			global.GVA_LOG.Error(err.Error())
 			response.FailWithMessage(resp.Msg, c)
 			return
 		}
 	}
-	symbol, _ := json.Marshal(lisApis.Symbol)
+	symbol, err := json.Marshal(lisApis.Symbol)
 	apis := listen.Apis{
 		ApiKey:     lisApis.ApiKey,
 		PassPhrase: lisApis.PassPhrase,
@@ -69,8 +72,11 @@ func (lisApisApi *ApisApi) CreateApis(c *gin.Context) {
 		Status:     lisApis.Status,
 		Symbol:     string(symbol),
 	}
+	if err != nil {
+		global.GVA_LOG.Error(err.Error())
+	}
 
-	if err := lisApisService.CreateApis(&apis); err != nil {
+	if err = lisApisService.CreateApis(&apis); err != nil {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
@@ -143,9 +149,10 @@ func (lisApisApi *ApisApi) DeleteApisByIds(c *gin.Context) {
 // @Success 200 {string} string "{"success":true,"data":{},"msg":"更新成功"}"
 // @Router /lisApis/updateApis [put]
 func (lisApisApi *ApisApi) UpdateApis(c *gin.Context) {
-	var lisApis listen.Apis
+	var lisApis listenReq.ApisSymbol
 	err := c.ShouldBindJSON(&lisApis)
 	if err != nil {
+		global.GVA_LOG.Error(err.Error())
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
@@ -155,16 +162,18 @@ func (lisApisApi *ApisApi) UpdateApis(c *gin.Context) {
 		"SecretKey":  {utils.NotEmpty()},
 	}
 	if err := utils.Verify(lisApis, verify); err != nil {
+		global.GVA_LOG.Error(err.Error())
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
 
 	apis, err := lisApisService.GetApis(lisApis.ID)
 	if err != nil {
+		global.GVA_LOG.Error(err.Error())
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-
+	symbol, err := json.Marshal(lisApis.Symbol)
 	//启动停止
 	if apis.Status != lisApis.Status {
 
@@ -192,8 +201,8 @@ func (lisApisApi *ApisApi) UpdateApis(c *gin.Context) {
 			}
 		}
 	} else {
-		if apis.Status == "启动" && lisApis.Symbol != apis.Symbol {
-			_, err := global.HttpPost(global.GVA_CONFIG.Vars.LisUrl+"/user/setSymbol?apikey="+lisApis.ApiKey, []byte(lisApis.Symbol))
+		if apis.Status == "启动" && string(symbol) != apis.Symbol {
+			_, err := global.HttpPost(global.GVA_CONFIG.Vars.LisUrl+"/user/setSymbol?apikey="+lisApis.ApiKey, symbol)
 			if err != nil {
 				global.GVA_LOG.Error("请求失败!", zap.Error(err))
 				response.FailWithMessage(err.Error(), c)
@@ -202,10 +211,20 @@ func (lisApisApi *ApisApi) UpdateApis(c *gin.Context) {
 		}
 	}
 
-	if err := lisApisService.UpdateApis(lisApis); err != nil {
+	apis = listen.Apis{
+		ApiKey:     lisApis.ApiKey,
+		PassPhrase: lisApis.PassPhrase,
+		SecretKey:  lisApis.SecretKey,
+		Status:     lisApis.Status,
+		Symbol:     string(symbol),
+	}
+	apis.ID = lisApis.ID
+
+	if err := lisApisService.UpdateApis(apis); err != nil {
 		global.GVA_LOG.Error("更新失败!", zap.Error(err))
 		response.FailWithMessage("更新失败", c)
 	}
+	response.OkWithMessage("更新成功", c)
 }
 
 // FindApis 用id查询用户Api
