@@ -9,7 +9,7 @@ RUN go env -w GO111MODULE=on \
     && go env -w GOOS=linux \
     && go env \
     && go mod tidy \
-    && go build -o server .
+    && go build -t tempc -o server .
 
 FROM alpine:latest
 
