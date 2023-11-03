@@ -31,7 +31,7 @@
 <script>
 import {
     defineComponent,
-    toRefs,
+    toRefs, 
     reactive,
     getCurrentInstance,
     onMounted
@@ -64,6 +64,7 @@ const savePlug = async (state) => {
     }
 }
 
+ 
 export default defineComponent({
     components: {},
     props: {},
@@ -108,23 +109,19 @@ export default defineComponent({
         onMounted(() => {
             init(state)
         });
-
-
-
+ 
         const instance = getCurrentInstance()
         const submitForm = () => {
-            instance.ctx.$refs['vForm'].validate(valid => {
-                if (!valid) return
-                savePlug(state)
-            })
+            savePlug(state)
+            // instance.ctx.$refs['vForm'].validate(valid => {
+            //     if (!valid) return
+                
+            // })
         }
-        const resetForm = () => {
-            instance.ctx.$refs['vForm'].resetFields()
-        }
+       
         return {
             ...toRefs(state),
-            submitForm,
-            resetForm
+            submitForm  
         }
     }
 })

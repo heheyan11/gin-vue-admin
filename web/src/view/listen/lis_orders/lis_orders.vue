@@ -15,8 +15,8 @@
        —
       <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
       </el-form-item>
-        <el-form-item label="apikey" prop="apikey">
-         <el-input v-model="searchInfo.apikey" placeholder="搜索条件" />
+        <el-form-item label="apikey" prop="apiKey">
+         <el-input v-model="searchInfo.apiKey" placeholder="搜索条件" />
         </el-form-item>
 
         <el-form-item label="买单id" prop="buyId">
