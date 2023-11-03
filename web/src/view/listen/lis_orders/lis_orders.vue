@@ -15,12 +15,16 @@
        —
       <el-date-picker v-model="searchInfo.endCreatedAt" type="datetime" placeholder="结束日期" :disabled-date="time=> searchInfo.startCreatedAt ? time.getTime() < searchInfo.startCreatedAt.getTime() : false"></el-date-picker>
       </el-form-item>
+        <el-form-item label="apikey" prop="apikey">
+         <el-input v-model="searchInfo.apikey" placeholder="搜索条件" />
+        </el-form-item>
+
         <el-form-item label="买单id" prop="buyId">
-         <el-input v-model="searchInfo.buyId" placeholder="搜索条件" />
+         <el-input v-model="searchInfo.buyId" placeholder="买单id" />
         </el-form-item>
 
         <el-form-item label="产品id" prop="ordId">
-         <el-input v-model="searchInfo.ordId" placeholder="搜索条件" />
+         <el-input v-model="searchInfo.ordId" placeholder="产品id" />
         </el-form-item>
 
          
@@ -103,8 +107,9 @@
         <el-table-column type="selection" width="55" />
         
         <el-table-column align="left" label="用户apikey" prop="apikey" width="120" />
-        <el-table-column align="left" label="买单id" prop="buyId" width="120" />
         <el-table-column align="left" label="产品Id" prop="ordId" width="120" />
+        <el-table-column align="left" label="买单id" prop="buyId" width="120" />
+    
         <el-table-column align="left" label="委托数量,(SWAP为张)" prop="sz" width="120" />
         <el-table-column align="left" label="累计成交量" prop="accFillSz" width="120" />
         <el-table-column align="left" label="收益" prop="pnl" width="120" />
