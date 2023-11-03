@@ -20,7 +20,7 @@ zap:
 # redis configuration
 redis:
   db: 0
-  addr: 192.168.31.130:6379
+  addr: 172.19.0.9:6379
   password: "qq111111"
 
 # mongo configuration
@@ -72,11 +72,11 @@ captcha:
   open-captcha-timeout: 3600 # open-captcha大于0时才生效
 
 vars:
-  lis-url: http://192.168.31.131:8008
+  lis-url: http://172.19.0.9:8008
 # mysql connect configuration
 # 未初始化之前请勿手动修改数据库信息！！！如果一定要手动初始化请看（https://gin-vue-admin.com/docs/first_master）
 mysql:
-  path: 192.168.31.130
+  path: 172.19.0.9
   port: "3306"
   config: charset=utf8mb4&parseTime=True&loc=Local
   db-name: listen
