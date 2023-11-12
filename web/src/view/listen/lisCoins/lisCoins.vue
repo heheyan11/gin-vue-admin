@@ -43,7 +43,7 @@
         row-key="ID"
         @selection-change="handleSelectionChange"
         >
-        <el-table-column type="selection" width="55" />
+        <!-- <el-table-column type="selection" width="55" /> -->
         <el-table-column align="left" label="日期" width="180">
             <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
@@ -57,7 +57,7 @@
                 查看详情
             </el-button>
             <el-button type="primary" link icon="edit" class="table-button" @click="updateCoinsFunc(scope.row)">变更</el-button>
-            <!-- <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button> -->
+            <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
             </template>
         </el-table-column>
         </el-table>

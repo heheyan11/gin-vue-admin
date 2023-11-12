@@ -80,6 +80,18 @@ export const findApis = (params) => {
   })
 }
 
+
+export const findStatus = (params) => {
+  return service({
+    url: '/lisApis/findStatus',
+    method: 'get',
+    params
+  })
+}
+
+
+
+
 // @Tags Apis
 // @Summary 分页获取用户Api列表
 // @Security ApiKeyAuth

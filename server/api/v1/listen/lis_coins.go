@@ -46,6 +46,13 @@ func (lisCoinsApi *CoinsApi) CreateCoins(c *gin.Context) {
 		global.GVA_LOG.Error("创建失败!", zap.Error(err))
 		response.FailWithMessage("创建失败", c)
 	} else {
+
+		_, err = global.HttpGet(global.GVA_CONFIG.Vars.LisUrl + "/system/setSymbol?symbol=" + lisCoins.Name)
+		if err != nil {
+			global.GVA_LOG.Error("请求失败!", zap.Error(err))
+			response.FailWithMessage(err.Error(), c)
+			return
+		}
 		response.OkWithMessage("创建成功", c)
 	}
 }
@@ -70,6 +77,12 @@ func (lisCoinsApi *CoinsApi) DeleteCoins(c *gin.Context) {
 		global.GVA_LOG.Error("删除失败!", zap.Error(err))
 		response.FailWithMessage("删除失败", c)
 	} else {
+		_, err = global.HttpGet(global.GVA_CONFIG.Vars.LisUrl + "/system/delSymbol?symbol=" + lisCoins.Name)
+		if err != nil {
+			global.GVA_LOG.Error("请求失败!", zap.Error(err))
+			response.FailWithMessage(err.Error(), c)
+			return
+		}
 		response.OkWithMessage("删除成功", c)
 	}
 }

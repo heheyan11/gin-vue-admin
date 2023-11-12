@@ -52,26 +52,42 @@
           <template #default="scope">{{ formatDate(scope.row.CreatedAt) }}</template>
         </el-table-column>
         <el-table-column align="left" label="ApiKey" prop="apiKey" width="285" />
-        <!-- <el-table-column align="left" label="passphrase" prop="passphrase" width="120" /> -->
+        <el-table-column align="left" label="正收益" prop="zheng" width="120" />
+        <el-table-column align="left" label="负收益" prop="fu" width="120" />
+        <el-table-column align="left" label="总收益" prop="zong" width="120" />
         <!-- <el-table-column align="left" label="SecretKey" prop="secretKey" width="120" /> -->
         <el-table-column align="left" label="是否启动" prop="status" width="220" />
         <el-table-column align="left" label="操作">
           <template #default="scope">
+
+
+            <el-button type="primary" link class="table-button" @click="getStatus(scope.row)">
+              <el-icon style="margin-right: 5px">
+                <InfoFilled />
+              </el-icon>
+              查看状态
+            </el-button>
+
+
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
               <el-icon style="margin-right: 5px">
                 <InfoFilled />
               </el-icon>
               查看详情
             </el-button>
+
+
             <el-button type="primary" link icon="edit" class="table-button"
               @click="updateApisFunc(scope.row)">启动/停止</el-button>
+
+
             <el-button type="primary" link icon="delete" @click="deleteRow(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
       <div class="gva-pagination">
         <el-pagination layout="total, sizes, prev, pager, next, jumper" :current-page="page" :page-size="pageSize"
-          :page-sizes="[10, 30, 50, 100]" :total="total" @current-change="handleCurrentChange"
+          :page-sizes="[5, 30, 50, 100]" :total="total" @current-change="handleCurrentChange"
           @size-change="handleSizeChange" />
       </div>
     </div>
@@ -99,14 +115,14 @@
           <el-form-item label="设置运行状态" prop="启动停止">
             <el-radio-group v-model="formData.status">
 
-              <el-radio  v-for="item in ['停止', '启动']" :key="item" :label="item"
-              :clearable="false" style="{display: inline}">{{ item }}</el-radio>
-             
-              
+              <el-radio v-for="item in ['停止', '启动']" :key="item" :label="item" :clearable="false"
+                style="{display: inline}">{{ item }}</el-radio>
+
+
 
             </el-radio-group>
           </el-form-item>
- 
+
         </el-form>
       </el-scrollbar>
       <template #footer>
@@ -131,12 +147,106 @@
           <el-descriptions-item label="symbol">
             {{ formData.symbol }}
           </el-descriptions-item>
-          <!-- <el-descriptions-item label="SecretKey">
-                        {{ formData.secretKey }}
-                </el-descriptions-item> -->
+
           <el-descriptions-item label="是否启动">
             {{ formData.status }}
           </el-descriptions-item>
+        </el-descriptions>
+      </el-scrollbar>
+    </el-dialog>
+
+    <el-dialog v-model="detailShow2" style="width: 1600px" lock-scroll :before-close="closeDetailShow2" title="查看状态"
+      destroy-on-close>
+      <el-scrollbar height="650px">
+          
+        <div class="dialog-footer">
+          <el-button type="primary"  @click="resetStatus(formData2.apiKey)">刷 新</el-button>
+        </div>
+
+
+        <el-empty v-if="formData2.apiKey==''" description="暂无数据"></el-empty>
+        
+        <el-descriptions column="2" border v-for="(value, key, index) in formData2.Childs">
+
+
+          
+         
+          <el-descriptions-item label="symbol名称" label-align="center" >
+            {{ key }}
+          </el-descriptions-item>
+
+          <el-descriptions-item label="状态" label-align="right">
+            {{ value.Status == 1 ? '比价' : '做单' }}
+          </el-descriptions-item>
+
+          <el-descriptions-item label="现货触发止盈价" label-align="right">
+            {{ value.SpotSell }}
+          </el-descriptions-item>
+          <el-descriptions-item label="现货买单均价" label-align="right">
+            {{ value.SpotAvgPx }}
+          </el-descriptions-item>
+          <el-descriptions-item label="现货成交数量" label-align="right">
+            {{ value.SpotFillSz }}
+          </el-descriptions-item>
+          <el-descriptions-item label="现货订单号" label-align="right">
+            {{ value.SpotOid }}
+          </el-descriptions-item>
+
+          <el-descriptions-item label="合约触发止盈价" label-align="right">
+            {{ value.SwapSell }}
+          </el-descriptions-item>
+          <el-descriptions-item label="合约买单均价" label-align="right">
+            {{ value.SwapAvgPx }}
+          </el-descriptions-item>
+          <el-descriptions-item label="合约成交数量" label-align="right">
+            {{ value.SwapFillSz }}
+          </el-descriptions-item>
+          <el-descriptions-item label="合约订单号" label-align="right">
+            {{ value.SwapOid }}
+          </el-descriptions-item>
+
+
+          <el-descriptions-item label="现货止盈队列" v-for="(v, k, i) in value.SpotQueue" label-align="right" span="2">
+
+
+            <el-tag>
+              订单号：{{ v.Oid }}<br />
+              成交触发价：{{ v.BackPx }}<br />
+              成交量：{{ v.FillSz }}<br />
+              止盈触发价：{{ v.Sell }}<br />
+            </el-tag>
+            <br />
+
+          </el-descriptions-item>
+
+          <el-descriptions-item label="合约止盈队列" v-for="(v, k, i) in value.SwapQueue" label-align="right" span="2">
+
+            <el-tag>
+              订单号：{{ v.Oid }} <br>
+              成交触发价：{{ v.BackPx }} <br>
+              成交量：{{ v.FillSz }} <br>
+              止盈触发价：{{ v.Sell }}
+            </el-tag>
+            <br />
+
+          </el-descriptions-item>
+
+          <el-descriptions-item label="现货挂单列表" v-for="(v, k, i) in value.SpotBuys" label-align="right" span="2">
+
+
+            <el-tag>
+              订单号：{{ v.Oid }}
+              成交均价：{{ v.AvgPx }}
+              成交量：{{ v.FillSz }}
+              止盈触发价：{{ v.Sell }}
+            </el-tag>
+            <br />
+
+
+          </el-descriptions-item>
+
+
+
         </el-descriptions>
       </el-scrollbar>
     </el-dialog>
@@ -150,7 +260,8 @@ import {
   deleteApisByIds,
   updateApis,
   findApis,
-  getApisList
+  getApisList,
+  findStatus
 } from '@/api/lisApis'
 import { getCoinsList } from '@/api/lisCoins'
 // 全量引入格式化工具 请按需保留
@@ -226,7 +337,7 @@ const elSearchFormRef = ref()
 // =========== 表格控制部分 ===========
 const page = ref(1)
 const total = ref(0)
-const pageSize = ref(10)
+const pageSize = ref(5)
 const tableData = ref([])
 const searchInfo = ref({})
 // =========== symbol 控制
@@ -377,10 +488,15 @@ const dialogFormVisible = ref(false)
 // 查看详情控制标记
 const detailShow = ref(false)
 
+const detailShow2 = ref(false)
 
 // 打开详情弹窗
 const openDetailShow = () => {
   detailShow.value = true
+}
+
+const openDetailShow2 = () => {
+  detailShow2.value = true
 }
 
 
@@ -394,6 +510,27 @@ const getDetails = async (row) => {
   }
 }
 
+const getStatus = async (row) => {
+  // 打开弹窗
+  const res = await findStatus({ apiKey: row.apiKey })
+  if (res.code === 0) {
+    formData2.value = res.data
+    openDetailShow2()
+  }
+}
+
+const resetStatus = async (apiKey) => {
+  // 打开弹窗
+  console.log(apiKey)
+  const res = await findStatus({ apiKey: apiKey })
+  if (res.code === 0) {
+    formData2.value = res.data 
+  }
+}
+
+
+
+
 
 // 关闭详情弹窗
 const closeDetailShow = () => {
@@ -406,6 +543,23 @@ const closeDetailShow = () => {
     symbol: []
   }
 }
+
+
+const formData2 = ref({
+  Childs: {},
+  apiKey:""
+})
+
+
+const closeDetailShow2 = () => {
+  detailShow2.value = false
+  formData2.value = {
+    Childs: {},
+    apiKey:""
+  }
+}
+
+
 
 //查询coins
 const getCoins = async () => {

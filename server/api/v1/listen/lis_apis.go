@@ -2,6 +2,7 @@ package listen
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
@@ -11,6 +12,7 @@ import (
 	"github.com/flipped-aurora/gin-vue-admin/server/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strconv"
 )
 
 type ApisApi struct {
@@ -251,6 +253,26 @@ func (lisApisApi *ApisApi) FindApis(c *gin.Context) {
 	}
 }
 
+func (lisApisApi *ApisApi) FindStatus(c *gin.Context) {
+	var lisApis listen.Apis
+	err := c.ShouldBindQuery(&lisApis)
+	if err != nil {
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	rest, err := global.HttpGet(global.GVA_CONFIG.Vars.LisUrl + "/user/status?apikey=" + lisApis.ApiKey)
+	if err != nil {
+		global.GVA_LOG.Error("请求失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	c.String(200, string(rest))
+	//response.OkWithData(gin.H{"rest": string(rest)}, c)
+
+}
+
 // GetApisList 分页获取用户Api列表
 // @Tags Apis
 // @Summary 分页获取用户Api列表
@@ -271,6 +293,15 @@ func (lisApisApi *ApisApi) GetApisList(c *gin.Context) {
 		global.GVA_LOG.Error("获取失败!", zap.Error(err))
 		response.FailWithMessage("获取失败", c)
 	} else {
+
+		for i, value := range list {
+			res := lisOrdersService.GetIncomeSum(value.ApiKey)
+			fmt.Println(res)
+			list[i].Zheng = strconv.FormatFloat(res[0], 'f', 4, 64)
+			list[i].Fu = strconv.FormatFloat(res[1], 'f', 4, 64)
+			list[i].Zong = strconv.FormatFloat(res[2], 'f', 4, 64)
+		}
+
 		response.OkWithDetailed(response.PageResult{
 			List:     list,
 			Total:    total,

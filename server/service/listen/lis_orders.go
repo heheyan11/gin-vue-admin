@@ -45,14 +45,25 @@ func (lisOrdersService *OrderService) GetOrder(id uint) (lisOrders listen.Order,
 	return
 }
 
+func (lisOrdersService *OrderService) GetIncomeSum(apiKey string) []float64 {
+	var zheng listen.OrderIncome
+	global.GVA_DB.Model(&listen.Order{}).Where("api_key = ? and income > 0", apiKey).Select("SUM(income) as total").First(&zheng)
+
+	var fu listen.OrderIncome
+	global.GVA_DB.Model(&listen.Order{}).Where("api_key = ? and income < 0", apiKey).Select("SUM(income) as total").First(&fu)
+
+	return []float64{zheng.Total, fu.Total, zheng.Total - fu.Total}
+}
+
 // GetOrderInfoList 分页获取订单列表记录
 // Author [piexlmax](https://github.com/piexlmax)
 func (lisOrdersService *OrderService) GetOrderInfoList(info listenReq.OrderSearch) (list []listen.Order, total int64, err error) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
-	db := global.GVA_DB.Model(&listen.Order{})
+	db := global.GVA_DB.Model(&listen.Order{}).Where("buy_id != '-'")
 	var lisOrderss []listen.Order
+
 	// 如果有条件搜索 下方会自动创建搜索语句
 	if info.StartCreatedAt != nil && info.EndCreatedAt != nil {
 		db = db.Where("ctime BETWEEN ? AND ?", info.StartCreatedAt.UnixMilli(), info.EndCreatedAt.UnixMilli())
@@ -69,12 +80,10 @@ func (lisOrdersService *OrderService) GetOrderInfoList(info listenReq.OrderSearc
 	if info.OrdId != "" {
 		db = db.Where("ord_id LIKE ?", "%"+info.OrdId+"%")
 	}
-	if info.Side != "" {
-		db = db.Where("side = ?", info.Side)
+	if info.Apikey != "" {
+		db = db.Where("api_key = ?", info.Apikey)
 	}
-	if info.TdMode != "" {
-		db = db.Where("td_mode = ?", info.TdMode)
-	}
+
 	err = db.Count(&total).Error
 	if err != nil {
 		return

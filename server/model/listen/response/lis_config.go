@@ -7,4 +7,5 @@ type LisConfigResponse struct {
 	PlanOrderRate string `json:"planOrderRate"`
 	TopRate       string `json:"topRate"`
 	TopCallRate   string `json:"topCallRate"`
+	Levers        string `json:"levers"`
 }

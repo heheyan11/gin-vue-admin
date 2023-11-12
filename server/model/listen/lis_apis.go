@@ -13,6 +13,9 @@ type Apis struct {
 	SecretKey  string `json:"secretKey" form:"secretKey" gorm:"column:secret_key;comment:SecretKey;"`         //SecretKey
 	Status     string `json:"status" form:"status" gorm:"column:status;type:enum('停止','启动');comment:Status;"` //是否启动
 	Symbol     string `json:"symbol" form:"symbol" gorm:"column:symbol;"`
+	Zheng      string `json:"zheng" gorm:"-"`
+	Fu         string `json:"fu" gorm:"-"`
+	Zong       string `json:"zong" gorm:"-"`
 }
 
 // TableName 用户Api Apis自定义表名 lis_apis

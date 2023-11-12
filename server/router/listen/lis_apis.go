@@ -15,13 +15,14 @@ func (s *ApisRouter) InitApisRouter(Router *gin.RouterGroup) {
 	lisApisRouterWithoutRecord := Router.Group("lisApis")
 	var lisApisApi = v1.ApiGroupApp.ListenApiGroup.ApisApi
 	{
-		lisApisRouter.POST("createApis", lisApisApi.CreateApis)   // 新建用户Api
-		lisApisRouter.DELETE("deleteApis", lisApisApi.DeleteApis) // 删除用户Api
+		lisApisRouter.POST("createApis", lisApisApi.CreateApis)             // 新建用户Api
+		lisApisRouter.DELETE("deleteApis", lisApisApi.DeleteApis)           // 删除用户Api
 		lisApisRouter.DELETE("deleteApisByIds", lisApisApi.DeleteApisByIds) // 批量删除用户Api
-		lisApisRouter.PUT("updateApis", lisApisApi.UpdateApis)    // 更新用户Api
+		lisApisRouter.PUT("updateApis", lisApisApi.UpdateApis)              // 更新用户Api
 	}
 	{
-		lisApisRouterWithoutRecord.GET("findApis", lisApisApi.FindApis)        // 根据ID获取用户Api
-		lisApisRouterWithoutRecord.GET("getApisList", lisApisApi.GetApisList)  // 获取用户Api列表
+		lisApisRouterWithoutRecord.GET("findApis", lisApisApi.FindApis)       // 根据ID获取用户Api
+		lisApisRouterWithoutRecord.GET("findStatus", lisApisApi.FindStatus)   // 根据ID获取用户Api
+		lisApisRouterWithoutRecord.GET("getApisList", lisApisApi.GetApisList) // 获取用户Api列表
 	}
 }

@@ -127,7 +127,7 @@ mysql:
     password: qq111111
     path: 192.168.31.130
     engine: ""
-    log-mode: error
+    log-mode: debug
     max-idle-conns: 10
     max-open-conns: 100
     singular: false

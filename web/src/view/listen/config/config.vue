@@ -19,6 +19,9 @@
                 <el-form-item label="止盈回调系数" label-width="130px" prop="topCallRate">
                     <el-input v-model="formData.topCallRate" type="text" clearable></el-input>
                 </el-form-item>
+                <el-form-item label="杠杆倍数" label-width="130px" prop="levers">
+                    <el-input v-model="formData.levers" type="text" clearable></el-input>
+                </el-form-item>
                 <el-form-item>
                     <el-button type="primary" @click="submitForm">保存</el-button>
                 </el-form-item>
@@ -76,6 +79,7 @@ export default defineComponent({
                 planOrderRate: "",
                 topRate: "",
                 topCallRate: "",
+                levers: "",
             },
             rules: {
                 spotNum: [{
@@ -99,6 +103,11 @@ export default defineComponent({
                     message: '请输入数字'
                 }],
                 topCallRate: [{
+                    pattern: /^\d+(\.\d+)?$/,
+                    trigger: ['blur', 'change'],
+                    message: '请输入数字'
+                }],
+                levers: [{
                     pattern: /^\d+(\.\d+)?$/,
                     trigger: ['blur', 'change'],
                     message: '请输入数字'

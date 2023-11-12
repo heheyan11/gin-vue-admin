@@ -44,35 +44,8 @@
           </el-select>
         </el-form-item>
         
-        <el-form-item label="订单方向">
-          <el-select
-            v-model="searchInfo.side"
-            clearable
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in [{'label':'买入','value':'buy'},{'label':'卖出','value':'sell'}]"
-              :key="item.value"
-              :label="`${item.label}(${item.value})`"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
-
-        <el-form-item label="交易模式">
-          <el-select
-            v-model="searchInfo.tdMode"
-            clearable
-            placeholder="请选择"
-          >
-            <el-option
-              v-for="item in [{'label':'现金','value':'cash'},{'label':'全仓','value':'cross'}]"
-              :key="item.value"
-              :label="`${item.label}(${item.value})`"
-              :value="item.value"
-            />
-          </el-select>
-        </el-form-item>
+        
+        
       
     
         
@@ -106,20 +79,24 @@
         >
         <el-table-column type="selection" width="55" />
         
-        <el-table-column align="left" label="用户apikey" prop="apikey" width="120" />
-        <el-table-column align="left" label="产品Id" prop="ordId" width="120" />
-        <el-table-column align="left" label="买单id" prop="buyId" width="120" />
-    
-        <el-table-column align="left" label="委托数量,(SWAP为张)" prop="sz" width="120" />
+        <el-table-column align="left" label="用户apikey" prop="apikey" width="170" />
         <el-table-column align="left" label="累计成交量" prop="accFillSz" width="120" />
+
+        <el-table-column align="left" label="买单id" prop="buyId" width="120" />
+        <el-table-column align="left" label="卖单Id" prop="ordId" width="120" />
+ 
+        <el-table-column align="left" label="买单均价" prop="buyAvgPx" width="120" />
+        <el-table-column align="left" label="卖单均价" prop="avgPx" width="120" />
         <el-table-column align="left" label="收益" prop="pnl" width="120" />
-        <el-table-column align="left" label="成交均价" prop="avgPx" width="120" />
+        <el-table-column align="left" label="收益率" prop="pnlRate" width="120" />
+        <!-- <el-table-column align="left" label="买单美元价值" prop="buyNotionalUsd" width="120" />
+         <el-table-column align="left" label="卖单美元价值" prop="notionalUsd" width="120" /> -->
         <!-- <el-table-column align="left" label="创建订单的时间" prop="ctime" width="120" >
           <template #default="scope">{{ formatDate(scope.row.ctime) }}</template>
         </el-table-column> -->
         <!-- <el-table-column align="left" label="累计手续费" prop="fee" width="120" /> -->
         <!-- <el-table-column align="left" label="手续费币种" prop="feeCcy" width="120" /> -->
-        <!-- <el-table-column align="left" label="委托单已成交美元价值" prop="fillNotionalUsd" width="120" /> -->
+       
         <el-table-column align="left" label="创建订单的时间" prop="fillTime" width="120" > <template #default="scope">{{ formatDate(scope.row.ctime) }}</template></el-table-column>
         <el-table-column align="left" label="产品类型" prop="instId" width="120" /> 
    
@@ -127,7 +104,7 @@
        
         <!-- <el-table-column align="left" label="委托价格" prop="px" width="120" />   -->
       
-        <!-- <el-table-column align="left" label="交易模式" prop="tdMode" width="120" /> -->
+       
         <el-table-column align="left" label="操作">
             <template #default="scope">
             <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
@@ -182,9 +159,7 @@
             <el-form-item label="累计手续费:"  prop="fee" >
               <el-input v-model="formData.fee" :clearable="true"  placeholder="请输入累计手续费" />
             </el-form-item>
-            <el-form-item label="手续费币种:"  prop="feeCcy" >
-              <el-input v-model="formData.feeCcy" :clearable="true"  placeholder="请输入手续费币种" />
-            </el-form-item>
+            
             <el-form-item label="委托单美元价值:"  prop="notionalUsd" >
               <el-input v-model="formData.notionalUsd" :clearable="true"  placeholder="请输入委托单美元价值" />
             </el-form-item>
@@ -207,9 +182,7 @@
             <el-form-item label="产品Id:"  prop="ordId" >
               <el-input v-model="formData.ordId" :clearable="true"  placeholder="请输入产品Id" />
             </el-form-item>
-            <el-form-item label="订单类型:"  prop="ordType" >
-              <el-input v-model="formData.ordType" :clearable="true"  placeholder="请输入订单类型" />
-            </el-form-item>
+            
             <el-form-item label="收益:"  prop="pnl" >
               <el-input v-model="formData.pnl" :clearable="true"  placeholder="请输入收益" />
             </el-form-item>
@@ -220,10 +193,7 @@
               <el-input v-model="formData.side" :clearable="true"  placeholder="请输入订单方向" />
             </el-form-item>
            
-          
-            <el-form-item label="交易模式:"  prop="tdMode" >
-              <el-input v-model="formData.tdMode" :clearable="true"  placeholder="请输入交易模式" />
-            </el-form-item>
+           
           </el-form>
       </el-scrollbar>
       <template #footer>
@@ -243,49 +213,52 @@
                 <el-descriptions-item label="产品类型">
                         {{ formData.instId }}
                 </el-descriptions-item>
-                <el-descriptions-item label="产品Id">
-                        {{ formData.ordId }}
-                </el-descriptions-item>
                 <el-descriptions-item label="买单id">
                         {{ formData.buyId }}
                 </el-descriptions-item>
-                <el-descriptions-item label="委托数量">
-                        {{ formData.sz }}
+                <el-descriptions-item label="卖单Id">
+                        {{ formData.ordId }}
                 </el-descriptions-item>
-                <el-descriptions-item label="累计成交量">
+
+                <el-descriptions-item label="买单美元价值">
+                        {{ formData.buyNotionalUsd }}
+                </el-descriptions-item>
+                 
+                <el-descriptions-item label="卖单美元价值">
+                        {{ formData.notionalUsd }}
+                </el-descriptions-item>
+                 
+            
+                <el-descriptions-item label="成交量">
                         {{ formData.accFillSz }}
+                </el-descriptions-item>
+
+                <el-descriptions-item label="买单均价">
+                        {{ formData.buyAvgPx }}
+                </el-descriptions-item>
+             
+                <el-descriptions-item label="卖单均价">
+                        {{ formData.avgPx }}
                 </el-descriptions-item>
 
                 <el-descriptions-item label="收益">
                         {{ formData.pnl }}
                 </el-descriptions-item>
-                <el-descriptions-item label="成交均价">
-                        {{ formData.avgPx }}
+
+                <el-descriptions-item label="收益率">
+                        {{ formData.pnlRate }}
                 </el-descriptions-item>
+              
                 <el-descriptions-item label="创建订单的时间">
                         {{ formData.ctime!=""?formatDate(formData.ctime):"" }}
                 </el-descriptions-item>
-                <!-- <el-descriptions-item label="错误码">
-                        {{ formData.code }}
-                </el-descriptions-item>
-                <el-descriptions-item label="错误信息">
-                        {{ formData.msg }}
-                </el-descriptions-item> -->
-                <el-descriptions-item label="累计手续费">
+     
+                <el-descriptions-item label="卖单手续费">
                         {{ formData.fee }}
                 </el-descriptions-item>
-                <el-descriptions-item label="手续费币种">
-                        {{ formData.feeCcy }}
-                </el-descriptions-item>
-                <el-descriptions-item label="委托单美元价值">
-                        {{ formData.notionalUsd }}
-                </el-descriptions-item>
-                <el-descriptions-item label="委托单已成交美元价值">
-                        {{ formData.fillNotionalUsd }}
-                </el-descriptions-item>
-                <el-descriptions-item label="最新成交时间">
-                        {{ formData.fillTime!=""?formatDate(Number(formData.fillTime)):"" }}
-                </el-descriptions-item> 
+                
+              
+                
                 <el-descriptions-item label="产品类型">
                         {{ formData.instType }}
                 </el-descriptions-item>
@@ -294,9 +267,7 @@
                 </el-descriptions-item>
               
              
-                <el-descriptions-item label="订单类型">
-                        {{ formData.ordType }}
-                </el-descriptions-item>
+               
                 
                 <!-- <el-descriptions-item label="委托价格">
                         {{ formData.px }}
@@ -305,10 +276,7 @@
                         {{ formData.side }}
                 </el-descriptions-item>
                
-               
-                <el-descriptions-item label="交易模式">
-                        {{ formData.tdMode }}
-                </el-descriptions-item>
+             
         </el-descriptions>
       </el-scrollbar>
     </el-dialog>
@@ -345,8 +313,7 @@ const formData = ref({
         code: '',
         msg: '',
         fee: '',
-        feeCcy: '',
-        fillNotionalUsd: '',
+        feeCcy: '', 
         fillTime: '',
         instId: '',
         instType: '',
@@ -358,8 +325,7 @@ const formData = ref({
         px: '',
         side: '',
         state: '',
-        sz: '',
-        tdMode: '',
+        sz: '', 
         })
 
 
@@ -571,8 +537,7 @@ const closeDetailShow = () => {
           code: '',
           msg: '',
           fee: '',
-          feeCcy: '',
-          fillNotionalUsd: '',
+          feeCcy: '', 
           fillTime: '',
           instId: '',
           instType: '',
@@ -584,8 +549,7 @@ const closeDetailShow = () => {
           px: '',
           side: '',
           state: '',
-          sz: '',
-          tdMode: '',
+          sz: '', 
           }
 }
 
@@ -608,8 +572,7 @@ const closeDialog = () => {
         code: '',
         msg: '',
         fee: '',
-        feeCcy: '',
-        fillNotionalUsd: '',
+        feeCcy: '', 
         fillTime: '',
         instId: '',
         instType: '',
@@ -621,8 +584,7 @@ const closeDialog = () => {
         px: '',
         side: '',
         state: '',
-        sz: '',
-        tdMode: '',
+        sz: '', 
         }
 }
 // 弹窗确定
