@@ -89,6 +89,14 @@ export const findStatus = (params) => {
   })
 }
 
+export const setPositionApi = (params) => {
+  return service({
+    url: '/lisApis/setPosition',
+    method: 'get',
+    params
+  })
+}
+
 
 
 

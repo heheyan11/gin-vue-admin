@@ -5,4 +5,5 @@ type RouterGroup struct {
 	ApisRouter
 	CoinsRouter
 	OrderRouter
+	OrderErrorRouter
 }

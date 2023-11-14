@@ -4,4 +4,5 @@ type ServiceGroup struct {
 	ApisService
 	CoinsService
 	OrderService
+	OrderErrorService
 }

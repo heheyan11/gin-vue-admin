@@ -69,11 +69,11 @@
             </el-button>
 
 
-            <el-button type="primary" link class="table-button" @click="getDetails(scope.row)">
+            <el-button type="primary" link class="table-button" @click="setPosition(scope.row)">
               <el-icon style="margin-right: 5px">
                 <InfoFilled />
               </el-icon>
-              查看详情
+              一键卖币平仓
             </el-button>
 
 
@@ -158,20 +158,20 @@
     <el-dialog v-model="detailShow2" style="width: 1600px" lock-scroll :before-close="closeDetailShow2" title="查看状态"
       destroy-on-close>
       <el-scrollbar height="650px">
-          
+
         <div class="dialog-footer">
-          <el-button type="primary"  @click="resetStatus(formData2.apiKey)">刷 新</el-button>
+          <el-button type="primary" @click="resetStatus(formData2.apiKey)">刷 新</el-button>
         </div>
 
 
-        <el-empty v-if="formData2.apiKey==''" description="暂无数据"></el-empty>
-        
+        <el-empty v-if="formData2.apiKey == ''" description="暂无数据"></el-empty>
+
         <el-descriptions column="2" border v-for="(value, key, index) in formData2.Childs">
 
 
-          
-         
-          <el-descriptions-item label="symbol名称" label-align="center" >
+
+
+          <el-descriptions-item label="symbol名称" label-align="center">
             {{ key }}
           </el-descriptions-item>
 
@@ -205,40 +205,43 @@
             {{ value.SwapOid }}
           </el-descriptions-item>
 
+          <el-descriptions-item label="瀑布预计做单价" label-align="right">
+            {{ value.SwapPlanPx }}
+          </el-descriptions-item>
 
           <el-descriptions-item label="现货止盈队列" v-for="(v, k, i) in value.SpotQueue" label-align="right" span="2">
 
 
             <el-tag>
-              订单号：{{ v.Oid }}<br />
-              成交触发价：{{ v.BackPx }}<br />
-              成交量：{{ v.FillSz }}<br />
-              止盈触发价：{{ v.Sell }}<br />
-            </el-tag>
-            <br />
-
-          </el-descriptions-item>
-
-          <el-descriptions-item label="合约止盈队列" v-for="(v, k, i) in value.SwapQueue" label-align="right" span="2">
-
-            <el-tag>
-              订单号：{{ v.Oid }} <br>
-              成交触发价：{{ v.BackPx }} <br>
-              成交量：{{ v.FillSz }} <br>
-              止盈触发价：{{ v.Sell }}
-            </el-tag>
-            <br />
-
-          </el-descriptions-item>
-
-          <el-descriptions-item label="现货挂单列表" v-for="(v, k, i) in value.SpotBuys" label-align="right" span="2">
-
-
-            <el-tag>
               订单号：{{ v.Oid }}
-              成交均价：{{ v.AvgPx }}
+              成交触发价：{{ v.AvgPx }}
               成交量：{{ v.FillSz }}
-              止盈触发价：{{ v.Sell }}
+              止盈触发价：{{ v.BackPx }}
+            </el-tag>
+            <br />
+
+          </el-descriptions-item>
+
+          <el-descriptions-item label="合约止盈队列" v-for="(v1, k1, i1) in value.SwapQueue" label-align="right" span="2">
+
+            <el-tag>
+              订单号：{{ v1.Oid }}
+              成交触发价：{{ v1.AvgPx }}
+              成交量：{{ v1.FillSz }}
+              止盈触发价：{{ v1.BackPx }}
+            </el-tag>
+            <br />
+
+          </el-descriptions-item>
+
+          <el-descriptions-item label="现货挂单列表" v-for="(v2, k2, i2) in value.SpotBuys" label-align="right" span="2">
+
+
+            <el-tag>
+              订单号：{{ v2.Oid }}
+              成交均价：{{ v2.AvgPx }}
+              成交量：{{ v2.FillSz }}
+              止盈触发价：{{ v2.Sell }}
             </el-tag>
             <br />
 
@@ -261,7 +264,8 @@ import {
   updateApis,
   findApis,
   getApisList,
-  findStatus
+  findStatus,
+  setPositionApi,
 } from '@/api/lisApis'
 import { getCoinsList } from '@/api/lisCoins'
 // 全量引入格式化工具 请按需保留
@@ -510,6 +514,16 @@ const getDetails = async (row) => {
   }
 }
 
+const setPosition = async (row) => { 
+  const res = await setPositionApi({ apiKey:row.apiKey })
+  if (res.code === 0) {
+    ElMessage({
+      type: 'success',
+      message: '平仓成功'
+    })
+  }
+}
+
 const getStatus = async (row) => {
   // 打开弹窗
   const res = await findStatus({ apiKey: row.apiKey })
@@ -524,7 +538,7 @@ const resetStatus = async (apiKey) => {
   console.log(apiKey)
   const res = await findStatus({ apiKey: apiKey })
   if (res.code === 0) {
-    formData2.value = res.data 
+    formData2.value = res.data
   }
 }
 
@@ -547,7 +561,7 @@ const closeDetailShow = () => {
 
 const formData2 = ref({
   Childs: {},
-  apiKey:""
+  apiKey: ""
 })
 
 
@@ -555,7 +569,7 @@ const closeDetailShow2 = () => {
   detailShow2.value = false
   formData2.value = {
     Childs: {},
-    apiKey:""
+    apiKey: ""
   }
 }
 

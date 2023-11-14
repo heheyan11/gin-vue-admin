@@ -87,7 +87,7 @@
  
         <el-table-column align="left" label="买单均价" prop="buyAvgPx" width="120" />
         <el-table-column align="left" label="卖单均价" prop="avgPx" width="120" />
-        <el-table-column align="left" label="收益" prop="pnl" width="120" />
+        <el-table-column align="left" label="收益" prop="income" width="120" />
         <el-table-column align="left" label="收益率" prop="pnlRate" width="120" />
         <!-- <el-table-column align="left" label="买单美元价值" prop="buyNotionalUsd" width="120" />
          <el-table-column align="left" label="卖单美元价值" prop="notionalUsd" width="120" /> -->
@@ -183,8 +183,8 @@
               <el-input v-model="formData.ordId" :clearable="true"  placeholder="请输入产品Id" />
             </el-form-item>
             
-            <el-form-item label="收益:"  prop="pnl" >
-              <el-input v-model="formData.pnl" :clearable="true"  placeholder="请输入收益" />
+            <el-form-item label="收益:"  prop="income" >
+              <el-input v-model="formData.income" :clearable="true"  placeholder="请输入收益" />
             </el-form-item>
             <!-- <el-form-item label="委托价格:"  prop="px" >
               <el-input v-model="formData.px" :clearable="true"  placeholder="请输入委托价格" />
@@ -242,7 +242,7 @@
                 </el-descriptions-item>
 
                 <el-descriptions-item label="收益">
-                        {{ formData.pnl }}
+                        {{ formData.income }}
                 </el-descriptions-item>
 
                 <el-descriptions-item label="收益率">
@@ -321,7 +321,7 @@ const formData = ref({
         notionalUsd: '',
         ordId: '',
         ordType: '',
-        pnl: '',
+        income: '',
         px: '',
         side: '',
         state: '',
@@ -545,7 +545,7 @@ const closeDetailShow = () => {
           notionalUsd: '',
           ordId: '',
           ordType: '',
-          pnl: '',
+          income: '',
           px: '',
           side: '',
           state: '',
@@ -580,7 +580,7 @@ const closeDialog = () => {
         notionalUsd: '',
         ordId: '',
         ordType: '',
-        pnl: '',
+        income: '',
         px: '',
         side: '',
         state: '',

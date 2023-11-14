@@ -10,7 +10,7 @@
                 <el-form-item label="永续下单数量U" label-width="130px" prop="swapNum">
                     <el-input v-model="formData.swapNum" type="text" clearable></el-input>
                 </el-form-item>
-                <el-form-item label="开始下单系数" label-width="130px" prop="planOrderRate">
+                <el-form-item label="防瀑布系数" label-width="130px" prop="planOrderRate">
                     <el-input v-model="formData.planOrderRate" type="text" clearable></el-input>
                 </el-form-item>
                 <el-form-item label="开始止盈系数" label-width="130px" prop="topRate">

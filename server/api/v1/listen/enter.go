@@ -5,4 +5,5 @@ type ApiGroup struct {
 	ApisApi
 	CoinsApi
 	OrderApi
+	OrderErrorApi
 }

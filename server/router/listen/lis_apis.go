@@ -23,6 +23,7 @@ func (s *ApisRouter) InitApisRouter(Router *gin.RouterGroup) {
 	{
 		lisApisRouterWithoutRecord.GET("findApis", lisApisApi.FindApis)       // 根据ID获取用户Api
 		lisApisRouterWithoutRecord.GET("findStatus", lisApisApi.FindStatus)   // 根据ID获取用户Api
+		lisApisRouterWithoutRecord.GET("setPosition", lisApisApi.SetPosition) // 根据ID获取用户Api
 		lisApisRouterWithoutRecord.GET("getApisList", lisApisApi.GetApisList) // 获取用户Api列表
 	}
 }

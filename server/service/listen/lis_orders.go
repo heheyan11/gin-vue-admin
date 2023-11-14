@@ -52,7 +52,7 @@ func (lisOrdersService *OrderService) GetIncomeSum(apiKey string) []float64 {
 	var fu listen.OrderIncome
 	global.GVA_DB.Model(&listen.Order{}).Where("api_key = ? and income < 0", apiKey).Select("SUM(income) as total").First(&fu)
 
-	return []float64{zheng.Total, fu.Total, zheng.Total - fu.Total}
+	return []float64{zheng.Total, fu.Total, zheng.Total + fu.Total}
 }
 
 // GetOrderInfoList 分页获取订单列表记录
@@ -61,7 +61,7 @@ func (lisOrdersService *OrderService) GetOrderInfoList(info listenReq.OrderSearc
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
 	// 创建db
-	db := global.GVA_DB.Model(&listen.Order{}).Where("buy_id != '-'")
+	db := global.GVA_DB.Model(&listen.Order{})
 	var lisOrderss []listen.Order
 
 	// 如果有条件搜索 下方会自动创建搜索语句

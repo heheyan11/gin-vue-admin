@@ -2,7 +2,6 @@ package listen
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/flipped-aurora/gin-vue-admin/server/global"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/request"
 	"github.com/flipped-aurora/gin-vue-admin/server/model/common/response"
@@ -273,6 +272,18 @@ func (lisApisApi *ApisApi) FindStatus(c *gin.Context) {
 
 }
 
+func (lisApisApi *ApisApi) SetPosition(c *gin.Context) {
+
+	rest, err := global.HttpGet(global.GVA_CONFIG.Vars.LisUrl + "/trade/setPosition?apikey=" + c.Query("apiKey"))
+	if err != nil {
+		global.GVA_LOG.Error("请求失败!", zap.Error(err))
+		response.FailWithMessage(err.Error(), c)
+		return
+	}
+
+	c.String(200, string(rest))
+}
+
 // GetApisList 分页获取用户Api列表
 // @Tags Apis
 // @Summary 分页获取用户Api列表
@@ -296,7 +307,7 @@ func (lisApisApi *ApisApi) GetApisList(c *gin.Context) {
 
 		for i, value := range list {
 			res := lisOrdersService.GetIncomeSum(value.ApiKey)
-			fmt.Println(res)
+
 			list[i].Zheng = strconv.FormatFloat(res[0], 'f', 4, 64)
 			list[i].Fu = strconv.FormatFloat(res[1], 'f', 4, 64)
 			list[i].Zong = strconv.FormatFloat(res[2], 'f', 4, 64)
